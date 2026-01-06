@@ -1,74 +1,127 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KashPay Terminal</title>
+    <title>KashPay Pro - Transfert Sécurisé</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.15.0/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-gray-100 font-sans">
-    <div class="bg-blue-700 p-6 text-white text-center shadow-lg">
-        <h1 class="text-2xl font-bold italic text-yellow-400">KASHPAY</h1>
-        <p class="text-xs opacity-80 uppercase tracking-widest">Agent Terminal - Santo Domingo</p>
+<body class="bg-slate-100 font-sans">
+
+    <div class="bg-blue-900 text-white p-6 text-center shadow-lg border-b-4 border-yellow-500">
+        <h1 class="text-3xl font-black italic tracking-tighter">KASHPAY <span class="text-yellow-500">PRO</span></h1>
+        <p class="text-xs opacity-90 uppercase tracking-widest font-bold">Système de Transfert - Santo Domingo</p>
     </div>
 
-    <div class="p-6">
-        <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
-            <h2 class="text-gray-500 text-sm font-bold mb-2 uppercase">Nouvelle Vente</h2>
-            <div class="relative mb-6">
-                <span class="absolute left-3 top-4 text-2xl font-bold text-gray-400">RD$</span>
-                <input type="number" id="montant" placeholder="0.00" 
-                    class="w-full text-4xl p-4 pl-16 border-b-4 border-blue-500 focus:outline-none font-black text-blue-900">
+    <div class="max-w-md mx-auto mt-4 p-4 pb-20">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 border border-gray-200">
+            
+            <div class="mb-6 p-4 bg-gray-50 rounded-2xl border-l-4 border-blue-500">
+                <h3 class="text-blue-800 text-xs font-black uppercase mb-3 italic">Informations Envoyeur</h3>
+                <input type="text" id="senderName" placeholder="Nom de l'envoyeur" 
+                    class="w-full p-3 rounded-xl border border-gray-200 mb-2 font-bold outline-none focus:ring-2 ring-blue-400">
             </div>
-            <button onclick="envoyerTransaction()" id="btnEnvoi" 
-                class="w-full bg-green-500 text-white py-5 rounded-2xl font-black text-xl shadow-lg active:scale-95 transition-all">
-                VALIDER LA TRANSACTION
+
+            <div class="mb-6 p-4 bg-gray-50 rounded-2xl border-l-4 border-yellow-500">
+                <h3 class="text-yellow-600 text-xs font-black uppercase mb-3 italic">Informations Récepteur</h3>
+                <input type="text" id="receiverName" placeholder="Nom du récepteur" 
+                    class="w-full p-3 rounded-xl border border-gray-200 mb-3 font-bold outline-none focus:ring-2 ring-yellow-400">
+                <input type="tel" id="clientPhone" placeholder="Numéro de téléphone (809...)" 
+                    class="w-full p-3 rounded-xl border border-gray-200 font-bold outline-none focus:ring-2 ring-yellow-400 text-blue-900">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div>
+                    <label class="block text-[10px] font-bold text-red-500 uppercase ml-1">Code Secret</label>
+                    <input type="text" id="secretCode" placeholder="Code" 
+                        class="w-full p-3 bg-red-50 border-2 border-red-100 rounded-xl font-mono font-bold text-center">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase ml-1">Service</label>
+                    <select id="serviceType" class="w-full p-3 bg-gray-100 rounded-xl font-bold text-xs h-[52px]">
+                        <option value="Cash">CASH</option>
+                        <option value="Claro">CLARO</option>
+                        <option value="Altice">ALTICE</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="text-center mb-8">
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Montant à envoyer</label>
+                <div class="flex items-center justify-center">
+                    <span class="text-2xl font-bold text-gray-300 mr-1">RD$</span>
+                    <input type="number" id="amount" placeholder="0" 
+                        class="w-40 text-5xl font-black outline-none bg-transparent border-b-4 border-blue-800 text-center">
+                </div>
+            </div>
+
+            <button onclick="sendTransaction()" id="btnSend"
+                class="w-full bg-blue-800 hover:bg-blue-900 text-white font-black py-5 rounded-2xl text-xl shadow-xl transition-all active:scale-95">
+                ENREGISTRER LE TRANSFERT
             </button>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        // Ta configuration Firebase détectée
+    <script>
+        // CONFIGURATION AUTOMATISÉE AVEC TES CODES
         const firebaseConfig = {
-            apiKey: "AIzaSyCUy2bLdARmHnKseXFqk39M",
+            apiKey: "AIzaSyCUy2bLdARmHnKseXFqk39NQSNy6oA8ibo",
             authDomain: "kashpay-app.firebaseapp.com",
             projectId: "kashpay-app",
-            storageBucket: "kashpay-app.firebasestorage.app",
+            storageBucket: "kashpay-app.appspot.com",
             messagingSenderId: "591201390460",
-            appId: "1:591201390460:web:4a5317716"
+            appId: "1:591201390460:web:4a5317716dc6be02789ef9"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        window.envoyerTransaction = async function() {
-            const montantInput = document.getElementById('montant');
-            const btn = document.getElementById('btnEnvoi');
+        async function sendTransaction() {
+            const amount = document.getElementById('amount').value;
+            const phone = document.getElementById('clientPhone').value;
+            const sender = document.getElementById('senderName').value;
+            const receiver = document.getElementById('receiverName').value;
+            const code = document.getElementById('secretCode').value;
+            const service = document.getElementById('serviceType').value;
+            const btn = document.getElementById('btnSend');
 
-            if(!montantInput.value) return alert("Veuillez entrer un montant !");
+            if(!amount || !phone || !sender || !receiver || !code) {
+                alert("⚠️ Complète tous les champs (Noms, Numéro, Code et Montant) !");
+                return;
+            }
 
-            btn.innerText = "ENVOI EN COURS...";
             btn.disabled = true;
+            btn.innerText = "ENREGISTREMENT...";
 
             try {
-                await addDoc(collection(db, "transactions"), {
-                    montant: montantInput.value,
+                await db.collection("transactions").add({
+                    senderName: sender,
+                    receiverName: receiver,
+                    phone: phone,
+                    amount: amount,
+                    secretCode: code,
+                    service: service,
                     agent: "Terminal_Micoit",
-                    date: serverTimestamp()
+                    date: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                alert("✅ TRANSACTION RÉUSSIE !");
-                montantInput.value = "";
-            } catch (e) {
-                alert("Erreur. Vérifiez que Firestore est en 'Mode Test'");
+                
+                alert("✅ TRANSFERT RÉUSSI !\n\nL'envoyeur : " + sender + "\nVa recevoir le WhatsApp.");
+                
+                const msg = `*REÇU KASHPAY*%0A------------------%0A*Envoyeur:* ${sender}%0A*Récepteur:* ${receiver}%0A*Montant:* RD$ ${amount}%0A*CODE SECRET:* ${code}%0A*Service:* ${service}%0A------------------%0A_Merci d'utiliser KashPay._`;
+                window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+
+                ["amount","clientPhone","senderName","receiverName","secretCode"].forEach(id => document.getElementById(id).value = "");
+                
+            } catch (error) {
+                alert("❌ Erreur de connexion au compte Firebase.");
             } finally {
-                btn.innerText = "VALIDER LA TRANSACTION";
                 btn.disabled = false;
+                btn.innerText = "ENREGISTRER LE TRANSFERT";
             }
         }
     </script>
 </body>
 </html>
+
