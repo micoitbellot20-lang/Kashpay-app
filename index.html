@@ -1,140 +1,74 @@
+
 <!DOCTYPE html>
-<html lang="ht">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KashPay Prototype</title>
+    <title>KashPay Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #1a1a1a; }
-        .phone-container {
-            width: 360px; height: 740px;
-            background: #f3f4f6; border: 12px solid #333;
-            border-radius: 40px; position: relative;
-            margin: 20px auto; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-        }
-        .screen { display: none; height: 100%; flex-direction: column; }
-        .active { display: flex; }
-        .btn-blue { background: #2563eb; color: white; padding: 12px; border-radius: 12px; font-weight: 600; text-align: center; }
-        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-    </style>
 </head>
-<body>
+<body class="bg-gray-100 font-sans">
+    <div class="bg-blue-700 p-6 text-white text-center shadow-lg">
+        <h1 class="text-2xl font-bold italic text-yellow-400">KASHPAY</h1>
+        <p class="text-xs opacity-80 uppercase tracking-widest">Agent Terminal - Santo Domingo</p>
+    </div>
 
-<div class="phone-container">
-    
-    <div id="home" class="screen active">
-        <div class="bg-blue-600 p-6 pt-10 text-white rounded-b-[30px] card-shadow">
-            <div class="flex justify-between items-center mb-6">
-                <span class="font-bold text-xl">KashPay</span>
-                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">🔔</div>
+    <div class="p-6">
+        <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
+            <h2 class="text-gray-500 text-sm font-bold mb-2 uppercase">Nouvelle Vente</h2>
+            <div class="relative mb-6">
+                <span class="absolute left-3 top-4 text-2xl font-bold text-gray-400">RD$</span>
+                <input type="number" id="montant" placeholder="0.00" 
+                    class="w-full text-4xl p-4 pl-16 border-b-4 border-blue-500 focus:outline-none font-black text-blue-900">
             </div>
-            <p class="text-blue-100 text-sm">Balans ou</p>
-            <h1 class="text-3xl font-bold mt-1">RD$ 5,420.00</h1>
-        </div>
-
-        <div class="grid grid-cols-4 gap-4 p-6 -mt-8">
-            <button onclick="showScreen('send')" class="flex flex-col items-center">
-                <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center mb-1 shadow-sm">📤</div>
-                <span class="text-[10px] font-bold text-gray-600">Voye</span>
-            </button>
-            <button onclick="showScreen('haiti')" class="flex flex-col items-center">
-                <div class="w-12 h-12 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mb-1 shadow-sm">🇭🇹</div>
-                <span class="text-[10px] font-bold text-gray-600">Ayiti</span>
-            </button>
-            <button onclick="showScreen('deposit')" class="flex flex-col items-center">
-                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-1 shadow-sm">➕</div>
-                <span class="text-[10px] font-bold text-gray-600">Depoze</span>
-            </button>
-            <button class="flex flex-col items-center">
-                <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mb-1 shadow-sm">📱</div>
-                <span class="text-[10px] font-bold text-gray-600">Kredi</span>
+            <button onclick="envoyerTransaction()" id="btnEnvoi" 
+                class="w-full bg-green-500 text-white py-5 rounded-2xl font-black text-xl shadow-lg active:scale-95 transition-all">
+                VALIDER LA TRANSACTION
             </button>
         </div>
-
-        <div class="px-6 py-2">
-            <h3 class="font-bold text-gray-800 mb-3">Dènye Aktivite</h3>
-            <div class="bg-white p-4 rounded-2xl flex justify-between items-center card-shadow mb-3">
-                <div class="flex items-center gap-3">
-                    <div class="bg-gray-100 p-2 rounded-lg">👤</div>
-                    <div><p class="font-bold text-sm">Transfert bay Ti Jo</p><p class="text-xs text-gray-400">Jodi a, 10:15</p></div>
-                </div>
-                <p class="text-red-500 font-bold text-sm">-1,075 RD$</p>
-            </div>
-        </div>
     </div>
 
-    <div id="send" class="screen p-6">
-        <button onclick="showScreen('home')" class="mb-6 text-gray-500 text-left">← Retounen</button>
-        <h2 class="text-2xl font-bold mb-6">Voye Lajan (RD)</h2>
-        <input type="tel" placeholder="Nimewo Telefòn" class="w-full p-4 border rounded-xl mb-4 bg-white outline-none">
-        <input type="number" id="amountRD" oninput="updateFees()" placeholder="Montan an RD$" class="w-full p-4 border rounded-xl mb-4 bg-white outline-none">
-        
-        <div id="feeBox" class="bg-blue-50 p-4 rounded-xl border-l-4 border-blue-500 mb-6 text-left">
-            <p class="text-sm text-blue-800">Frè sèvis (75 RD$ / tranche): <span id="feeAmount" class="font-bold">0 RD$</span></p>
-            <p class="text-sm text-blue-800 font-bold mt-1">Total y'ap koupe: <span id="totalRD">0</span> RD$</p>
-        </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        <button onclick="showScreen('success')" class="btn-blue w-full mt-auto">Voye Kounya</button>
-    </div>
+        // Ta configuration Firebase détectée
+        const firebaseConfig = {
+            apiKey: "AIzaSyCUy2bLdARmHnKseXFqk39M",
+            authDomain: "kashpay-app.firebaseapp.com",
+            projectId: "kashpay-app",
+            storageBucket: "kashpay-app.firebasestorage.app",
+            messagingSenderId: "591201390460",
+            appId: "1:591201390460:web:4a5317716"
+        };
 
-    <div id="haiti" class="screen p-6">
-        <button onclick="showScreen('home')" class="mb-6 text-gray-500 text-left">← Retounen</button>
-        <h2 class="text-2xl font-bold mb-2">Voye an Ayiti</h2>
-        <p class="text-sm text-gray-500 mb-6">Taux jodi a: 1 RD$ = 2.30 HTG</p>
-        
-        <input type="number" id="amountHT" oninput="updateHaiti()" placeholder="Konbe Pesos w'ap voye?" class="w-full p-4 border rounded-xl mb-4 bg-white outline-none">
-        
-        <div class="bg-green-50 p-6 rounded-2xl border-2 border-green-200 text-center mb-6">
-            <p class="text-green-800 text-sm mb-1">Moun nan ap resevwa:</p>
-            <h1 class="text-3xl font-bold text-green-600"><span id="htgResult">0</span> HTG</h1>
-        </div>
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-        <button onclick="showScreen('success')" class="btn-blue w-full mt-auto bg-green-600">Konfime Transfè</button>
-    </div>
+        window.envoyerTransaction = async function() {
+            const montantInput = document.getElementById('montant');
+            const btn = document.getElementById('btnEnvoi');
 
-    <div id="deposit" class="screen p-6 text-center">
-        <button onclick="showScreen('home')" class="mb-6 text-left w-full text-gray-500">← Retounen</button>
-        <h2 class="text-2xl font-bold mt-10 mb-4">Depoze Cash</h2>
-        <p class="text-gray-500 text-sm mb-8">Montre kòd sa a bay yon ajan KashPay pou chaje kont ou.</p>
-        
-        <div class="bg-white border-4 border-dashed border-blue-500 p-10 rounded-3xl mb-8">
-            <span class="text-gray-400 text-xs font-bold uppercase tracking-widest">Kòd Depo</span>
-            <h1 class="text-5xl font-black text-blue-600 mt-2">KP-882</h1>
-        </div>
+            if(!montantInput.value) return alert("Veuillez entrer un montant !");
 
-        <button onclick="showScreen('home')" class="btn-blue w-full">Fini</button>
-    </div>
+            btn.innerText = "ENVOI EN COURS...";
+            btn.disabled = true;
 
-    <div id="success" class="screen bg-green-500 items-center justify-center text-white">
-        <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center text-green-500 text-4xl mb-6">✓</div>
-        <h2 class="text-2xl font-bold">Tranzaksyon Reyisi!</h2>
-        <p class="mt-2 opacity-80">Lajan an rive jwenn moun nan.</p>
-        <button onclick="showScreen('home')" class="mt-10 bg-white text-green-600 px-8 py-2 rounded-full font-bold">Ok</button>
-    </div>
-
-</div>
-
-<script>
-    function showScreen(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    }
-
-    function updateFees() {
-        const amount = document.getElementById('amountRD').value;
-        const fees = amount > 0 ? Math.ceil(amount / 1000) * 75 : 0;
-        document.getElementById('feeAmount').innerText = fees + " RD$";
-        document.getElementById('totalRD').innerText = (parseFloat(amount || 0) + fees);
-    }
-
-    function updateHaiti() {
-        const amount = document.getElementById('amountHT').value;
-        const rate = 2.30;
-        document.getElementById('htgResult').innerText = (amount * rate).toLocaleString();
-    }
-</script>
-
+            try {
+                await addDoc(collection(db, "transactions"), {
+                    montant: montantInput.value,
+                    agent: "Terminal_Micoit",
+                    date: serverTimestamp()
+                });
+                alert("✅ TRANSACTION RÉUSSIE !");
+                montantInput.value = "";
+            } catch (e) {
+                alert("Erreur. Vérifiez que Firestore est en 'Mode Test'");
+            } finally {
+                btn.innerText = "VALIDER LA TRANSACTION";
+                btn.disabled = false;
+            }
+        }
+    </script>
 </body>
 </html>
