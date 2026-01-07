@@ -23,8 +23,8 @@
         </div>
 
         <div style="margin-bottom: 15px;">
-            <label style="font-weight: bold; font-size: 0.9em;">TÉLÉPHONE WHATSAPP (ex: 509...)</label>
-            <input type="tel" id="phone" placeholder="Numéro du destinataire" style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+            <label style="font-weight: bold; font-size: 0.9em;">TÉLÉPHONE WHATSAPP (ex: 1809...)</label>
+            <input type="tel" id="phone" placeholder="Ex: 18099677216" style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
         </div>
 
         <div style="margin-bottom: 15px;">
@@ -34,7 +34,7 @@
 
         <div style="display: flex; gap: 10px; margin-bottom: 20px;">
             <div style="flex: 1;">
-                <label style="font-weight: bold; font-size: 0.8em;">TAUX DU JOUR</label>
+                <label style="font-weight: bold; font-size: 0.8em;">TAUX</label>
                 <input type="number" id="rate" value="1.5" step="0.01" oninput="calculer()" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
             </div>
             <div style="flex: 1;">
@@ -44,14 +44,6 @@
         </div>
 
         <div style="background: #f0f7ff; padding: 15px; border-radius: 12px; border: 1px solid #b3d7ff; margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                <span>Frais de transfert :</span>
-                <span style="font-weight: bold;">+ <span id="displayFee">0</span> $</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #b3d7ff; padding-bottom: 10px;">
-                <span>Total à encaisser :</span>
-                <span style="font-weight: bold; color: #0056b3;"><span id="displayTotal">0</span> $</span>
-            </div>
             <div style="text-align: center;">
                 <span style="font-size: 0.9em; color: #555;">LE DESTINATAIRE REÇOIT :</span><br>
                 <span style="font-size: 1.5em; font-weight: bold; color: #28a745;"><span id="displayReceive">0</span> HTG</span>
@@ -79,14 +71,7 @@
         function calculer() {
             const montant = parseFloat(document.getElementById('amount').value) || 0;
             const taux = parseFloat(document.getElementById('rate').value) || 0;
-            const fraisPercent = parseFloat(document.getElementById('feePercent').value) || 0;
-
-            const montantFrais = montant * (fraisPercent / 100);
-            const totalEncaisse = montant + montantFrais;
             const montantGourdes = montant * taux;
-
-            document.getElementById('displayFee').innerText = montantFrais.toLocaleString();
-            document.getElementById('displayTotal').innerText = totalEncaisse.toLocaleString();
             document.getElementById('displayReceive').innerText = montantGourdes.toLocaleString();
         }
 
@@ -99,7 +84,7 @@
             const receiveGdes = document.getElementById('displayReceive').innerText;
 
             if(!sender || !receiver || !amount || !phone) {
-                alert("Veuillez remplir tous les champs, y compris le téléphone !");
+                alert("Veuillez remplir tous les champs !");
                 return;
             }
 
@@ -107,22 +92,24 @@
             btn.innerText = "Enregistrement...";
 
             try {
+                // 1. Enregistrement Firebase
                 await db.collection("transfers").add({
                     expediteur: sender,
                     destinataire: receiver,
                     telephone: phone,
-                    montant_base: amount,
+                    montant_usd: amount,
                     montant_htg: receiveGdes,
                     date: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                // Préparation du message WhatsApp
-                const text = `*KashPay Pro - Reçu*%0A%0ABonjour *${receiver}*,%0AUn transfert de *${sender}* a été enregistré.%0A%0A💰 Montant à recevoir : *${receiveGdes} HTG*%0A✅ Statut : Disponible.`;
+                // 2. Préparation du message WhatsApp
+                const text = `*KashPay Pro - Notification*%0A%0ABonjour *${receiver}*,%0AUn transfert de *${sender}* a été enregistré.%0A%0A💰 Montant à recevoir : *${receiveGdes} HTG*%0A✅ Statut : Disponible.%0A%0A_Merci d'utiliser KashPay Pro_`;
                 
-                // Ouvre WhatsApp directement sur le numéro saisi
-                window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+                // 3. OUVERTURE WHATSAPP
+                const waUrl = `https://wa.me/${phone}?text=${text}`;
+                window.open(waUrl, '_blank');
                 
-                alert("✅ Transfert enregistré !");
+                alert("✅ Transfert enregistré avec succès !");
                 location.reload(); 
             } catch (error) {
                 alert("Erreur : " + error);
