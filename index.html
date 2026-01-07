@@ -3,56 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KashPay Pro - Gestion</title>
+    <title>KashPay Pro</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
 <body style="padding: 20px; font-family: sans-serif; max-width: 450px; margin: auto; background-color: #0056b3; color: #333;">
 
-    <div style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+    <div id="formContainer" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
         <h2 style="color: #0056b3; text-align: center; margin-top: 0;">KashPay Pro 💳</h2>
         
         <div style="margin-bottom: 15px;">
             <label style="font-weight: bold; font-size: 0.9em;">EXPÉDITEUR</label>
-            <input type="text" id="sender" placeholder="Prénom et Nom" style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+            <input type="text" id="sender" style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
         </div>
 
         <div style="margin-bottom: 15px;">
             <label style="font-weight: bold; font-size: 0.9em;">DESTINATAIRE</label>
-            <input type="text" id="receiver" placeholder="Prénom et Nom" style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+            <input type="text" id="receiver" style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
         </div>
 
         <div style="margin-bottom: 15px;">
-            <label style="font-weight: bold; font-size: 0.9em;">TÉLÉPHONE WHATSAPP (ex: 1809...)</label>
-            <input type="tel" id="phone" placeholder="Ex: 18099677216" style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+            <label style="font-weight: bold; font-size: 0.9em;">TÉLÉPHONE (ex: 1809...)</label>
+            <input type="tel" id="phone" placeholder="Sans le +" style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
         </div>
 
         <div style="margin-bottom: 15px;">
-            <label style="font-weight: bold; font-size: 0.9em;">MONTANT À ENVOYER (USD/RD$)</label>
-            <input type="number" id="amount" oninput="calculer()" placeholder="0.00" style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1.1em; font-weight: bold;">
+            <label style="font-weight: bold; font-size: 0.9em;">MONTANT ($)</label>
+            <input type="number" id="amount" oninput="calculer()" style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-weight: bold;">
         </div>
 
         <div style="display: flex; gap: 10px; margin-bottom: 20px;">
             <div style="flex: 1;">
                 <label style="font-weight: bold; font-size: 0.8em;">TAUX</label>
-                <input type="number" id="rate" value="1.5" step="0.01" oninput="calculer()" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+                <input type="number" id="rate" value="1.5" step="0.01" oninput="calculer()" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
             </div>
             <div style="flex: 1;">
                 <label style="font-weight: bold; font-size: 0.8em;">FRAIS (%)</label>
-                <input type="number" id="feePercent" value="5" oninput="calculer()" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+                <input type="number" id="feePercent" value="5" oninput="calculer()" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
             </div>
         </div>
 
-        <div style="background: #f0f7ff; padding: 15px; border-radius: 12px; border: 1px solid #b3d7ff; margin-bottom: 20px;">
-            <div style="text-align: center;">
-                <span style="font-size: 0.9em; color: #555;">LE DESTINATAIRE REÇOIT :</span><br>
-                <span style="font-size: 1.5em; font-weight: bold; color: #28a745;"><span id="displayReceive">0</span> HTG</span>
-            </div>
+        <div style="background: #f0f7ff; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
+            <span style="font-size: 0.9em; color: #555;">REÇOIT :</span><br>
+            <span style="font-size: 1.5em; font-weight: bold; color: #28a745;"><span id="displayReceive">0</span> HTG</span>
         </div>
 
         <button onclick="envoyerTransfert()" id="btnEnregistrer" style="width: 100%; padding: 18px; background: #0056b3; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer;">
-            ENREGISTRER ET NOTIFIER
+            ENREGISTRER LE TRANSFERT
         </button>
+
+        <div id="waSection" style="display: none; margin-top: 20px; border-top: 2px dashed #ccc; padding-top: 20px; text-align: center;">
+            <p style="color: green; font-weight: bold;">✅ Enregistré avec succès !</p>
+            <button onclick="ouvrirWhatsApp()" style="width: 100%; padding: 18px; background: #25D366; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer;">
+                📲 ENVOYER REÇU WHATSAPP
+            </button>
+            <button onclick="location.reload()" style="margin-top: 10px; background: none; border: none; color: #666; text-decoration: underline; cursor: pointer;">Faire un autre transfert</button>
+        </div>
     </div>
 
     <script>
@@ -64,9 +70,11 @@
             messagingSenderId: "591201390460",
             appId: "1:591201390460:web:4a5317716dc6be02789ef9"
         };
-        
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+
+        let messageGlobal = "";
+        let phoneGlobal = "";
 
         function calculer() {
             const montant = parseFloat(document.getElementById('amount').value) || 0;
@@ -84,15 +92,14 @@
             const receiveGdes = document.getElementById('displayReceive').innerText;
 
             if(!sender || !receiver || !amount || !phone) {
-                alert("Veuillez remplir tous les champs !");
+                alert("Remplis tous les champs !");
                 return;
             }
 
             btn.disabled = true;
-            btn.innerText = "Enregistrement...";
+            btn.innerText = "Chargement...";
 
             try {
-                // 1. Enregistrement Firebase
                 await db.collection("transfers").add({
                     expediteur: sender,
                     destinataire: receiver,
@@ -101,21 +108,20 @@
                     montant_htg: receiveGdes,
                     date: firebase.firestore.FieldValue.serverTimestamp()
                 });
+
+                // Préparer les données pour WhatsApp
+                phoneGlobal = phone;
+                messageGlobal = `*KashPay Pro - Reçu*%0A%0ABonjour *${receiver}*,%0AUn transfert de *${sender}* est prêt.%0A💰 Montant : *${receiveGdes} HTG*`;
+
+                // Afficher le bouton WhatsApp
+                btn.style.display = "none";
+                document.getElementById('waSection').style.display = "block";
                 
-                // 2. Préparation du message WhatsApp
-                const text = `*KashPay Pro - Notification*%0A%0ABonjour *${receiver}*,%0AUn transfert de *${sender}* a été enregistré.%0A%0A💰 Montant à recevoir : *${receiveGdes} HTG*%0A✅ Statut : Disponible.%0A%0A_Merci d'utiliser KashPay Pro_`;
-                
-                // 3. OUVERTURE WHATSAPP
-                const waUrl = `https://wa.me/${phone}?text=${text}`;
-                window.open(waUrl, '_blank');
-                
-                alert("✅ Transfert enregistré avec succès !");
-                location.reload(); 
-            } catch (error) {
-                alert("Erreur : " + error);
-                btn.disabled = false;
-                btn.innerText = "ENREGISTRER ET NOTIFIER";
-            }
+            } catch (e) { alert("Erreur: " + e); btn.disabled = false; }
+        }
+
+        function ouvrirWhatsApp() {
+            window.open(`https://wa.me/${phoneGlobal}?text=${messageGlobal}`, '_blank');
         }
     </script>
 </body>
