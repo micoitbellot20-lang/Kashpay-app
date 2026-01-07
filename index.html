@@ -1,52 +1,135 @@
-<div style="padding: 20px; font-family: sans-serif; max-width: 400px; margin: auto;">
-    <h2 style="color: #007bff;">Nouveau Transfert</h2>
-    
-    <label>Nom de l'expéditeur :</label>
-    <input type="text" id="sender" placeholder="Ex: Bellot" style="width: 100%; padding: 10px; margin: 10px 0;">
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KashPay Pro - Gestion</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+</head>
+<body style="padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 450px; margin: auto; background-color: #0056b3; color: #333;">
 
-    <label>Nom du destinataire :</label>
-    <input type="text" id="receiver" placeholder="Ex: Chrisla" style="width: 100%; padding: 10px; margin: 10px 0;">
-
-    <label>Montant à envoyer ($) :</label>
-    <input type="number" id="amount" oninput="calculer()" placeholder="0.00" style="width: 100%; padding: 10px; margin: 10px 0;">
-
-    <div style="display: flex; gap: 10px;">
-        <div style="flex: 1;">
-            <label>Taux du jour :</label>
-            <input type="number" id="rate" value="1.5" oninput="calculer()" style="width: 100%; padding: 10px; margin: 10px 0;">
+    <div style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+        <h2 style="color: #0056b3; text-align: center; margin-top: 0;">KashPay Pro 💳</h2>
+        
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold; font-size: 0.9em;">EXPÉDITEUR</label>
+            <input type="text" id="sender" placeholder="Prénom et Nom" style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
         </div>
-        <div style="flex: 1;">
-            <label>Frais (%) :</label>
-            <input type="number" id="feePercent" value="5" oninput="calculer()" style="width: 100%; padding: 10px; margin: 10px 0;">
+
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold; font-size: 0.9em;">DESTINATAIRE</label>
+            <input type="text" id="receiver" placeholder="Prénom et Nom" style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
         </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold; font-size: 0.9em;">MONTANT À ENVOYER (USD/RD$)</label>
+            <input type="number" id="amount" oninput="calculer()" placeholder="0.00" style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1.1em; font-weight: bold;">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <div style="flex: 1;">
+                <label style="font-weight: bold; font-size: 0.8em;">TAUX DU JOUR</label>
+                <input type="number" id="rate" value="1.5" step="0.01" oninput="calculer()" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+            </div>
+            <div style="flex: 1;">
+                <label style="font-weight: bold; font-size: 0.8em;">FRAIS (%)</label>
+                <input type="number" id="feePercent" value="5" oninput="calculer()" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+            </div>
+        </div>
+
+        <div style="background: #f0f7ff; padding: 15px; border-radius: 12px; border: 1px solid #b3d7ff; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>Frais de transfert :</span>
+                <span style="font-weight: bold;">+ <span id="displayFee">0</span> $</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #b3d7ff; padding-bottom: 10px;">
+                <span>Total à encaisser :</span>
+                <span style="font-weight: bold; color: #0056b3;"><span id="displayTotal">0</span> $</span>
+            </div>
+            <div style="text-align: center;">
+                <span style="font-size: 0.9em; color: #555;">LE DESTINATAIRE REÇOIT :</span><br>
+                <span style="font-size: 1.5em; font-weight: bold; color: #28a745;"><span id="displayReceive">0</span> HTG</span>
+            </div>
+        </div>
+
+        <button onclick="envoyerTransfert()" id="btnEnregistrer" style="width: 100%; padding: 18px; background: #0056b3; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s;">
+            ENREGISTRER LE TRANSFERT
+        </button>
     </div>
 
-    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px; border-left: 5px solid #007bff;">
-        <p>Frais à payer : <strong><span id="displayFee">0</span> $</strong></p>
-        <p>Total encaissé : <strong><span id="displayTotal">0</span> $</strong></p>
-        <p style="color: green; font-size: 1.2em;">Le destinataire reçoit : <br><strong><span id="displayReceive">0</span> Gourdes</strong></p>
-    </div>
+    <script>
+        // Ta configuration Firebase personnalisée
+        const firebaseConfig = {
+            apiKey: "AIzaSyCUy2bLdARmHnKseXFqk39NQSNy6oA8ibo",
+            authDomain: "kashpay-app.firebaseapp.com",
+            projectId: "kashpay-app",
+            storageBucket: "kashpay-app.firebasestorage.app",
+            messagingSenderId: "591201390460",
+            appId: "1:591201390460:web:4a5317716dc6be02789ef9"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-    <button onclick="envoyerTransfert()" id="btnEnregistrer" style="width: 100%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 5px; margin-top: 20px; font-weight: bold; cursor: pointer;">
-        ENREGISTRER LE TRANSFERT
-    </button>
-</div>
+        // Fonction de calcul automatique
+        function calculer() {
+            const montant = parseFloat(document.getElementById('amount').value) || 0;
+            const taux = parseFloat(document.getElementById('rate').value) || 0;
+            const fraisPercent = parseFloat(document.getElementById('feePercent').value) || 0;
 
-<script>
-function calculer() {
-    const montant = parseFloat(document.getElementById('amount').value) || 0;
-    const taux = parseFloat(document.getElementById('rate').value) || 0;
-    const fraisPercent = parseFloat(document.getElementById('feePercent').value) || 0;
+            const montantFrais = montant * (fraisPercent / 100);
+            const totalEncaisse = montant + montantFrais;
+            const montantGourdes = montant * taux;
 
-    const frais = montant * (fraisPercent / 100);
-    const totalEncaisse = montant + frais;
-    const montantRecu = montant * taux;
+            document.getElementById('displayFee').innerText = montantFrais.toLocaleString();
+            document.getElementById('displayTotal').innerText = totalEncaisse.toLocaleString();
+            document.getElementById('displayReceive').innerText = montantGourdes.toLocaleString();
+        }
 
-    document.getElementById('displayFee').innerText = frais.toFixed(2);
-    document.getElementById('displayTotal').innerText = totalEncaisse.toFixed(2);
-    document.getElementById('displayReceive').innerText = montantRecu.toFixed(2);
-}
+        // Fonction pour envoyer à Firebase
+        async function envoyerTransfert() {
+            const btn = document.getElementById('btnEnregistrer');
+            const sender = document.getElementById('sender').value;
+            const receiver = document.getElementById('receiver').value;
+            const amount = document.getElementById('amount').value;
+            const rate = document.getElementById('rate').value;
+            const fee = document.getElementById('displayFee').innerText;
+            const total = document.getElementById('displayTotal').innerText;
+            const receiveGdes = document.getElementById('displayReceive').innerText;
 
-// Note : La fonction envoyerTransfert() utilisera ces valeurs pour enregistrer dans Firebase
-</script>
+            if(!sender || !receiver || !amount) {
+                alert("Attention : Remplis les noms et le montant !");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.style.background = "#ccc";
+            btn.innerText = "Connexion à la base...";
+
+            try {
+                await db.collection("transfers").add({
+                    expediteur: sender,
+                    destinataire: receiver,
+                    montant_base: amount,
+                    taux_appliqué: rate,
+                    frais_calculés: fee,
+                    total_collecté: total,
+                    montant_final_htg: receiveGdes,
+                    date: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                alert("✅ Transfert enregistré avec succès !");
+                // Recharge la page pour vider le formulaire
+                location.reload(); 
+            } catch (error) {
+                alert("Erreur technique : " + error);
+                btn.disabled = false;
+                btn.style.background = "#0056b3";
+                btn.innerText = "ENREGISTRER LE TRANSFERT";
+            }
+        }
+    </script>
+</body>
+</html>
 
