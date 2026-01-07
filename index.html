@@ -1,83 +1,52 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KashPay Pro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-</head>
-<body class="bg-blue-600 flex items-center justify-center min-h-screen p-4">
+<div style="padding: 20px; font-family: sans-serif; max-width: 400px; margin: auto;">
+    <h2 style="color: #007bff;">Nouveau Transfert</h2>
+    
+    <label>Nom de l'expéditeur :</label>
+    <input type="text" id="sender" placeholder="Ex: Bellot" style="width: 100%; padding: 10px; margin: 10px 0;">
 
-    <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md">
-        <h1 class="text-2xl font-bold text-center text-blue-700 mb-6">KASHPAY PRO 💳</h1>
-        
-        <div class="space-y-4">
-            <input type="text" id="sender" placeholder="Nom de l'envoyeur" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <input type="text" id="receiver" placeholder="Nom du récepteur" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <input type="tel" id="phone" placeholder="Numéro de téléphone (WhatsApp)" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <input type="number" id="amount" placeholder="Montant (RD$)" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <input type="password" id="code" placeholder="Code Secret (4 chiffres)" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            
-            <button onclick="sendTransfer()" id="btn" class="w-full bg-blue-700 text-white font-bold py-3 rounded-lg hover:bg-blue-800 transition">
-                ENREGISTRER LE TRANSFERT
-            </button>
+    <label>Nom du destinataire :</label>
+    <input type="text" id="receiver" placeholder="Ex: Chrisla" style="width: 100%; padding: 10px; margin: 10px 0;">
+
+    <label>Montant à envoyer ($) :</label>
+    <input type="number" id="amount" oninput="calculer()" placeholder="0.00" style="width: 100%; padding: 10px; margin: 10px 0;">
+
+    <div style="display: flex; gap: 10px;">
+        <div style="flex: 1;">
+            <label>Taux du jour :</label>
+            <input type="number" id="rate" value="1.5" oninput="calculer()" style="width: 100%; padding: 10px; margin: 10px 0;">
+        </div>
+        <div style="flex: 1;">
+            <label>Frais (%) :</label>
+            <input type="number" id="feePercent" value="5" oninput="calculer()" style="width: 100%; padding: 10px; margin: 10px 0;">
         </div>
     </div>
 
-    <script>
-        // Remplace par tes configurations Firebase si nécessaire
-        const firebaseConfig = {
-            apiKey: "AIzaSy...", 
-            authDomain: "kashpay-app.firebaseapp.com",
-            projectId: "kashpay-app",
-            storageBucket: "kashpay-app.appspot.com",
-            messagingSenderId: "...",
-            appId: "..."
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px; border-left: 5px solid #007bff;">
+        <p>Frais à payer : <strong><span id="displayFee">0</span> $</strong></p>
+        <p>Total encaissé : <strong><span id="displayTotal">0</span> $</strong></p>
+        <p style="color: green; font-size: 1.2em;">Le destinataire reçoit : <br><strong><span id="displayReceive">0</span> Gourdes</strong></p>
+    </div>
 
-        async function sendTransfer() {
-            const sender = document.getElementById('sender').value;
-            const receiver = document.getElementById('receiver').value;
-            const phone = document.getElementById('phone').value;
-            const amount = document.getElementById('amount').value;
-            const code = document.getElementById('code').value;
-            const btn = document.getElementById('btn');
+    <button onclick="envoyerTransfert()" id="btnEnregistrer" style="width: 100%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 5px; margin-top: 20px; font-weight: bold; cursor: pointer;">
+        ENREGISTRER LE TRANSFERT
+    </button>
+</div>
 
-            if(!sender || !receiver || !phone || !amount || !code) {
-                alert("❌ Veuillez remplir toutes les cases");
-                return;
-            }
+<script>
+function calculer() {
+    const montant = parseFloat(document.getElementById('amount').value) || 0;
+    const taux = parseFloat(document.getElementById('rate').value) || 0;
+    const fraisPercent = parseFloat(document.getElementById('feePercent').value) || 0;
 
-            btn.disabled = true;
-            btn.innerText = "ENCOURS...";
+    const frais = montant * (fraisPercent / 100);
+    const totalEncaisse = montant + frais;
+    const montantRecu = montant * taux;
 
-            try {
-                await db.collection("transfers").add({
-                    senderName: sender,
-                    receiverName: receiver,
-                    phone: phone,
-                    amount: amount,
-                    secretCode: code,
-                    date: firebase.firestore.FieldValue.serverTimestamp()
-                });
+    document.getElementById('displayFee').innerText = frais.toFixed(2);
+    document.getElementById('displayTotal').innerText = totalEncaisse.toFixed(2);
+    document.getElementById('displayReceive').innerText = montantRecu.toFixed(2);
+}
 
-                alert("✅ TRANSFERT RÉUSSI");
-
-                const msg = `*REÇU KASHPAY*%0A%0A*Envoyeur:* ${sender}%0A*Récepteur:* ${receiver}%0A*Montant:* RD$ ${amount}%0A*Code:* ${code}`;
-                window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
-
-            } catch (e) {
-                alert("❌ Erreur : " + e.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "ENREGISTRER LE TRANSFERT";
-            }
-        }
-    </script>
-</body>
-</html>
+// Note : La fonction envoyerTransfert() utilisera ces valeurs pour enregistrer dans Firebase
+</script>
 
